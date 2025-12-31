@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Women Safety SOS</title>
+
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #1b5e20, #66bb6a);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+  }
+
+  .container {
+    background: rgba(0,0,0,0.3);
+    padding: 30px;
+    border-radius: 20px;
+    width: 320px;
+    text-align: center;
+  }
+
+  input {
+    width: 90%;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 8px;
+    border: none;
+  }
+
+  .save-btn {
+    background: #2e7d32;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .sos-btn {
+    margin-top: 20px;
+    background: red;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: none;
+    font-size: 22px;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 0 25px red;
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0% { box-shadow: 0 0 10px red; }
+    50% { box-shadow: 0 0 35px red; }
+    100% { box-shadow: 0 0 10px red; }
+  }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>👩‍🦰 Women Safety</h2>
+
+  <!-- User Number -->
+  <input type="tel" id="userNumber" placeholder="Your Mobile Number">
+
+  <!-- Emergency Contacts -->
+  <input type="tel" id="contact1" placeholder="Emergency Contact 1">
+  <input type="tel" id="contact2" placeholder="Emergency Contact 2">
+  <input type="tel" id="contact3" placeholder="Emergency Contact 3">
+
+  <button class="save-btn" onclick="saveNumbers()">Save Numbers</button>
+
+  <button class="sos-btn" onclick="sendSOS()">SOS</button>
+
+  <p style="font-size:12px;">One click can save a life</p>
+</div>
+
+<script>
+function saveNumbers() {
+  let user = document.getElementById("userNumber").value;
+  let c1 = document.getElementById("contact1").value;
+  let c2 = document.getElementById("contact2").value;
+  let c3 = document.getElementById("contact3").value;
+
+  if(user === "" || c1 === "") {
+    alert("Please enter at least your number and one emergency contact");
+    return;
+  }
+
+  localStorage.setItem("userNumber", user);
+  localStorage.setItem("contacts", JSON.stringify([c1, c2, c3]));
+
+  alert("Numbers saved successfully ✅");
+}
+
+function sendSOS() {
+  if (!navigator.geolocation) {
+    alert("Geolocation not supported");
+    return;
+  }
+
+  let contacts = JSON.parse(localStorage.getItem("contacts"));
+
+  if (!contacts) {
+    alert("Please save emergency numbers first");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    function(position) {
+      let lat = position.coords.latitude;
+      let lon = position.coords.longitude;
+
+      let locationLink = `https://www.google.com/maps?q=${lat},${lon}`;
+
+      let message = `🚨 SOS ALERT 🚨
+I am in danger. Please help me immediately.
+My live location:
+${locationLink}`;
+
+      contacts.forEach(phone => {
+        if(phone) {
+          let url = `https://wa.me/91${phone}?text=${encodeURIComponent(message)}`;
+          window.open(url, "_blank");
+        }
+      });
+    },
+    function() {
+      alert("Location permission denied");
+    }
+  );
+}
+</script>
+
+</body>
+</html>
